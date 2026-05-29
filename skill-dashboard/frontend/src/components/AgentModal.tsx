@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import type { AgentDetail } from "../api";
-import { fetchAgent } from "../api";
+import { fetchAgent, BASE } from "../api";
 
 interface Props {
   name: string;
@@ -30,7 +30,7 @@ export default function AgentModal({ name, onClose }: Props) {
     setTerminalOutput("");
     
     try {
-      const res = await fetch(`/api/agents/${name}/run`, {
+      const res = await fetch(`${BASE}/agents/${name}/run`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

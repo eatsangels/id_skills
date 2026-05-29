@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { SkillSummary, AgentSummary, DashboardStats, SkillsShSkill } from "./api";
-import { fetchSkills, fetchAgents, fetchDashboard, fetchSkillsSh } from "./api";
+import { fetchSkills, fetchAgents, fetchDashboard, fetchSkillsSh, BASE } from "./api";
 import StatsHeader from "./components/StatsHeader.tsx";
 import TabNav from "./components/TabNav.tsx";
 import SkillCard from "./components/SkillCard.tsx";
@@ -78,7 +78,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const eventSource = new EventSource("/api/events");
+    const eventSource = new EventSource(`${BASE}/events`);
     
     eventSource.onmessage = (event) => {
       try {

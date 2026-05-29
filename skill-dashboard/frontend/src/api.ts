@@ -1,4 +1,6 @@
-const BASE = "/api";
+export const BASE = typeof window !== "undefined" && window.location.protocol === "file:"
+  ? "http://localhost:3001/api"
+  : "/api";
 
 export interface SkillSummary {
   name: string;
