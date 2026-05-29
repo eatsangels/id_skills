@@ -49,7 +49,7 @@ export default function SkillModal({ name, onClose }: Props) {
             {!loading && (
               <button
                 onClick={() => {
-                  navigator.clipboard.writeText(detail?.name || name);
+                  navigator.clipboard.writeText(`skills ${detail?.name || name}`);
                   setCopied(true);
                   setTimeout(() => setCopied(false), 2000);
                 }}

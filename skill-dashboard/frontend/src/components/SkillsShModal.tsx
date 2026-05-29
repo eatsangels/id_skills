@@ -47,7 +47,7 @@ export default function SkillsShModal({ skill, onClose }: Props) {
               <h2 className="text-lg font-bold text-surface-100 truncate">{skill.name}</h2>
               <button
                 onClick={() => {
-                  navigator.clipboard.writeText(skill.name);
+                  navigator.clipboard.writeText(`skills ${skill.name}`);
                   setCopied(true);
                   setTimeout(() => setCopied(false), 2000);
                 }}

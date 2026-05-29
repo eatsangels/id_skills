@@ -11,7 +11,7 @@ export default function SkillCard({ skill, onClick }: Props) {
 
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigator.clipboard.writeText(skill.name);
+    navigator.clipboard.writeText(`skills ${skill.name}`);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
