@@ -8,6 +8,7 @@ interface Props {
 }
 
 export default function SkillsShModal({ skill, onClose }: Props) {
+  const [copied, setCopied] = useState(false);
   const [detail, setDetail] = useState<SkillsShDetail | null>(null);
   const [installing, setInstalling] = useState(false);
   const [installed, setInstalled] = useState(false);
@@ -40,12 +41,33 @@ export default function SkillsShModal({ skill, onClose }: Props) {
         className="relative w-full max-w-2xl bg-surface-900 border border-surface-700/50 rounded-2xl shadow-2xl shadow-black/40 animate-scale-in flex flex-col max-h-[85vh]"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-5 border-b border-surface-700/30 shrink-0">
-          <div>
-            <h2 className="text-lg font-bold text-surface-100">{skill.name}</h2>
-            <span className="text-sm text-surface-400 font-mono">{skill.source}</span>
+        <div className="flex items-center justify-between p-5 border-b border-surface-700/30 shrink-0 gap-4">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 min-w-0">
+              <h2 className="text-lg font-bold text-surface-100 truncate">{skill.name}</h2>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(skill.name);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                }}
+                className="p-1 rounded hover:bg-surface-800/60 text-surface-500 hover:text-emerald-400 transition-all cursor-pointer shrink-0"
+                title="Copy skill name"
+              >
+                {copied ? (
+                  <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                ) : (
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                )}
+              </button>
+            </div>
+            <span className="text-sm text-surface-400 font-mono block truncate">{skill.source}</span>
           </div>
-          <button onClick={onClose} className="text-surface-500 hover:text-surface-200 transition-colors cursor-pointer p-1">
+          <button onClick={onClose} className="text-surface-500 hover:text-surface-200 transition-colors cursor-pointer p-1 shrink-0">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>

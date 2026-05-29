@@ -8,6 +8,7 @@ interface Props {
 }
 
 export default function SkillModal({ name, onClose }: Props) {
+  const [copied, setCopied] = useState(false);
   const [detail, setDetail] = useState<SkillDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [lang, setLang] = useState<"en" | "es">(() => {
@@ -40,13 +41,36 @@ export default function SkillModal({ name, onClose }: Props) {
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div className="animate-scale-in bg-surface-900 border border-surface-700/60 rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl shadow-black/50">
-        <div className="shrink-0 bg-surface-900/95 backdrop-blur-sm border-b border-surface-800/60 px-6 py-4 flex items-center justify-between rounded-t-2xl">
-          <h2 className="text-lg font-bold text-surface-100">
-            {loading ? "Loading..." : detail?.name || name}
-          </h2>
+        <div className="shrink-0 bg-surface-900/95 backdrop-blur-sm border-b border-surface-800/60 px-6 py-4 flex items-center justify-between rounded-t-2xl gap-4">
+          <div className="flex items-center gap-2 min-w-0">
+            <h2 className="text-lg font-bold text-surface-100 truncate">
+              {loading ? "Loading..." : detail?.name || name}
+            </h2>
+            {!loading && (
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(detail?.name || name);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                }}
+                className="p-1 rounded hover:bg-surface-800/60 text-surface-500 hover:text-brand-400 transition-all cursor-pointer shrink-0"
+                title="Copy skill name"
+              >
+                {copied ? (
+                  <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                ) : (
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                )}
+              </button>
+            )}
+          </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-xl bg-surface-800/50 hover:bg-surface-700/50 text-surface-400 hover:text-surface-200 transition-all cursor-pointer"
+            className="w-8 h-8 flex items-center justify-center rounded-xl bg-surface-800/50 hover:bg-surface-700/50 text-surface-400 hover:text-surface-200 transition-all cursor-pointer shrink-0"
           >
             &times;
           </button>
