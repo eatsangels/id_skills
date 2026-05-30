@@ -7,8 +7,10 @@ let mainWindow;
 let backendProcess;
 
 function startBackend() {
-  // Path to the backend server file
-  const backendPath = path.join(__dirname, "skill-dashboard", "backend", "src", "server.js");
+  // Determine if backend should be loaded from unpacked ASAR folder in production
+  const backendPath = app.isPackaged
+    ? path.join(process.resourcesPath, "app.asar.unpacked", "skill-dashboard", "backend", "src", "server.js")
+    : path.join(__dirname, "skill-dashboard", "backend", "src", "server.js");
   
   // Fork the backend process so it runs in a background Node process
   backendProcess = fork(backendPath, [], {

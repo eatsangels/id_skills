@@ -39,6 +39,9 @@
       "skill-dashboard/frontend/dist/**/*",
       "package.json"
     ],
+    "asarUnpack": [
+      "skill-dashboard/backend/**/*"
+    ],
     "win": {
       "target": "nsis",
       "icon": "skill-dashboard/frontend/public/favicon.ico"
