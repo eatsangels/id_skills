@@ -99,7 +99,7 @@ export async function fetchAgent(name: string): Promise<{ agent: AgentDetail }> 
   return res.json();
 }
 
-export async function fetchDashboard(): Promise<{ stats: DashboardStats }> {
+export async function fetchDashboard(): Promise<{ stats: DashboardStats; version?: string; update?: { status: string; version?: string | null; error?: string | null } }> {
   try {
     const res = await fetch(`${BASE}/dashboard`);
     if (!res.ok) throw new Error("Dashboard API returned not OK");

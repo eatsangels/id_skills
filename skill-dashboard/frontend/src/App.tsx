@@ -9,6 +9,7 @@ import SkillModal from "./components/SkillModal.tsx";
 import AgentModal from "./components/AgentModal.tsx";
 import SkillsShCard from "./components/SkillsShCard.tsx";
 import SkillsShModal from "./components/SkillsShModal.tsx";
+import HelpModal from "./components/HelpModal.tsx";
 
 type Tab = "skills" | "agents" | "skills-sh";
 type ViewMode = "all" | "grouped";
@@ -57,6 +58,13 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [syncToast, setSyncToast] = useState<{ show: boolean; message: string } | null>(null);
 
+  // Dynamic version and auto-updater state
+  const [version, setVersion] = useState("1.0.3");
+  const [updateState, setUpdateState] = useState<{ status: string; version?: string | null; error?: string | null }>({ status: "idle" });
+  const [showHelp, setShowHelp] = useState(false);
+  const [hideUpdateBanner, setHideUpdateBanner] = useState(false);
+  const [applyingUpdate, setApplyingUpdate] = useState(false);
+
   const reloadData = (isAuto = false) => {
     // 1. Fetch local data first (very fast, doesn't require internet / external calls)
     Promise.all([fetchSkills(), fetchAgents(), fetchDashboard()]).then(
@@ -64,6 +72,8 @@ export default function App() {
         setSkills(s.skills || []);
         setAgents(a.agents || []);
         setStats(d.stats || null);
+        if (d.version) setVersion(d.version);
+        if (d.update) setUpdateState(d.update);
         setLoading(false);
         if (isAuto) {
           setSyncToast({ show: true, message: "¡Sincronizado en tiempo real!" });
@@ -81,6 +91,21 @@ export default function App() {
     }).catch((err) => {
       console.error("Failed to load skills.sh catalog:", err);
     });
+  };
+
+  const handleApplyUpdate = async () => {
+    if (applyingUpdate) return;
+    setApplyingUpdate(true);
+    try {
+      const res = await fetch(`${BASE}/updates/apply`, {
+        method: "POST"
+      });
+      if (!res.ok) throw new Error("Failed to apply update");
+    } catch (err) {
+      console.error("Error applying update:", err);
+      alert("Error al reiniciar y aplicar la actualización: " + (err instanceof Error ? err.message : String(err)));
+      setApplyingUpdate(false);
+    }
   };
 
   useEffect(() => {
@@ -102,6 +127,16 @@ export default function App() {
     eventSource.addEventListener("update", () => {
       console.log("[SSE] Update event received, reloading...");
       reloadData(true);
+    });
+
+    eventSource.addEventListener("app-update", (event: any) => {
+      try {
+        const data = JSON.parse(event.data);
+        console.log("[SSE] Real-time update state changed:", data);
+        setUpdateState(data);
+      } catch (err) {
+        console.error("[SSE] Failed to parse app-update data:", err);
+      }
     });
 
     eventSource.onerror = (err) => {
@@ -181,8 +216,17 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-surface-975 text-surface-100 font-sans antialiased selection:bg-brand-500/30">
+      {updateState.status === "available" && (
+        <div className="bg-brand-500/10 border-b border-brand-500/20 text-brand-300 text-xs py-2.5 px-6 flex items-center justify-center gap-2 animate-fade-in shrink-0">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span>
+          </span>
+          <span>Sincronizando: La versión v{updateState.version} se está descargando automáticamente en segundo plano.</span>
+        </div>
+      )}
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <StatsHeader stats={stats} />
+        <StatsHeader stats={stats} version={version} onHelpClick={() => setShowHelp(true)} />
 
         <div className="bg-surface-950/80 backdrop-blur-sm rounded-2xl border border-surface-800/60 p-5 mb-8">
           <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4">
@@ -387,6 +431,52 @@ export default function App() {
       )}
       {selectedSkillsSh && (
         <SkillsShModal skill={selectedSkillsSh} onClose={() => setSelectedSkillsSh(null)} />
+      )}
+      {showHelp && (
+        <HelpModal onClose={() => setShowHelp(false)} />
+      )}
+
+      {/* Floating downloaded update banner */}
+      {updateState.status === "downloaded" && !hideUpdateBanner && (
+        <div className="fixed bottom-6 right-6 z-40 max-w-sm w-full bg-surface-900/95 backdrop-blur-md border border-brand-500/40 rounded-2xl p-5 shadow-[0_10px_50px_rgba(0,0,0,0.8)] animate-scale-in">
+          <div className="flex items-start gap-4">
+            <div className="w-10 h-10 rounded-xl bg-brand-500/20 border border-brand-500/30 flex items-center justify-center text-brand-400 shrink-0">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.3} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+            </div>
+            <div className="flex-1 space-y-1">
+              <h4 className="text-sm font-bold text-surface-100">
+                ¡Actualización Lista!
+              </h4>
+              <p className="text-xs text-surface-400 leading-relaxed">
+                La versión <span className="font-semibold text-brand-300">v{updateState.version}</span> se ha descargado de forma segura y está lista para instalar.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center justify-end gap-3 mt-4 pt-3 border-t border-surface-800/40">
+            <button
+              onClick={() => setHideUpdateBanner(true)}
+              className="px-3.5 py-1.5 hover:bg-surface-800 text-surface-400 hover:text-surface-200 text-xs font-semibold rounded-xl transition-all cursor-pointer"
+            >
+              Más tarde
+            </button>
+            <button
+              onClick={handleApplyUpdate}
+              disabled={applyingUpdate}
+              className="bg-brand-600 hover:bg-brand-500 disabled:opacity-50 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-md shadow-brand-600/20 flex items-center gap-1.5 cursor-pointer"
+            >
+              {applyingUpdate ? (
+                <>
+                  <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Instalando...
+                </>
+              ) : (
+                "Reiniciar y actualizar"
+              )}
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Footer */}

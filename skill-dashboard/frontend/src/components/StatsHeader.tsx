@@ -2,6 +2,8 @@ import type { DashboardStats } from "../api";
 
 interface Props {
   stats: DashboardStats | null;
+  version: string;
+  onHelpClick: () => void;
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -21,7 +23,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   "Mobile/XR": "from-fuchsia-500 to-fuchsia-700",
 };
 
-export default function StatsHeader({ stats }: Props) {
+export default function StatsHeader({ stats, version, onHelpClick }: Props) {
   if (!stats) return null;
 
   const topCategories = stats.agentsByCategory
@@ -41,27 +43,44 @@ export default function StatsHeader({ stats }: Props) {
             className="w-12 h-12 object-contain rounded-xl shadow-[0_0_20px_rgba(124,58,237,0.3)] border border-brand-500/20"
           />
           <div>
-            <h1 className="text-2xl font-extrabold text-surface-100 tracking-tight">
-              SkillNexus
-            </h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-extrabold text-surface-100 tracking-tight">
+                SkillNexus
+              </h1>
+              <span className="text-[10px] bg-brand-500/10 text-brand-400 border border-brand-500/20 font-bold px-2 py-0.5 rounded-full shrink-0">
+                v{version}
+              </span>
+            </div>
             <p className="text-surface-500 text-xs mt-0.5">
               Entorno inteligente de gestión para agentes y habilidades
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-surface-500 font-medium">Realizado por</span>
-          <a
-            href="https://etrinidad.netlify.app/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs font-bold text-brand-400 hover:text-brand-300 transition-all duration-200 hover:underline inline-flex items-center gap-1 bg-brand-500/10 border border-brand-500/20 px-2.5 py-1 rounded-lg"
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onHelpClick}
+            className="text-xs font-semibold text-surface-300 hover:text-surface-100 transition-all duration-200 inline-flex items-center gap-1.5 bg-surface-900 border border-surface-800 hover:border-surface-700 px-3.5 py-1.5 rounded-xl cursor-pointer"
           >
-            Edward Trinidad
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.3} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-          </a>
+            Ayuda
+          </button>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-surface-500 font-medium">Realizado por</span>
+            <a
+              href="https://etrinidad.netlify.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-bold text-brand-400 hover:text-brand-300 transition-all duration-200 hover:underline inline-flex items-center gap-1 bg-brand-500/10 border border-brand-500/20 px-2.5 py-1 rounded-lg"
+            >
+              Edward Trinidad
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
+          </div>
         </div>
       </div>
 

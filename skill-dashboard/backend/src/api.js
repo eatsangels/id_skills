@@ -4,16 +4,53 @@ import { scanSkills } from "./skill-scanner.js";
 import { scanAgents } from "./agent-scanner.js";
 import { getCatalog, refreshCatalog, searchSkills, fetchSkillDetail, installSkill } from "./skills-sh-scanner.js";
 import { homedir } from "os";
-import { join } from "path";
+import { join, dirname } from "path";
 import { CONFIG } from "./config.js";
-import { watch, existsSync } from "fs";
+import { watch, existsSync, readFileSync } from "fs";
+import { fileURLToPath } from "url";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Read app version from package.json dynamically
+let appVersion = "1.0.3";
+try {
+  const pkgPath = join(__dirname, "..", "..", "..", "package.json");
+  const pkg = JSON.parse(readFileSync(pkgPath, "utf-8"));
+  appVersion = pkg.version;
+} catch (e) {
+  console.error("Failed to read version from package.json:", e);
+}
+
+// Track update status
+let updateStatus = {
+  status: "idle", // 'idle' | 'checking' | 'available' | 'downloaded' | 'error'
+  version: null,
+  error: null
+};
 
 const router = Router();
 
 let skillsCache = null;
 let agentsCache = null;
 let lastScan = null;
+
+if (process.on) {
+  process.on("message", (msg) => {
+    if (msg && msg.type) {
+      if (msg.type === "update-available") {
+        updateStatus = { status: "available", version: msg.version, error: null };
+        broadcast("app-update", updateStatus);
+      } else if (msg.type === "update-downloaded") {
+        updateStatus = { status: "downloaded", version: msg.version, error: null };
+        broadcast("app-update", updateStatus);
+      } else if (msg.type === "update-error") {
+        updateStatus = { status: "error", error: msg.error, version: null };
+        broadcast("app-update", updateStatus);
+      }
+    }
+  });
+}
 
 function scan() {
   skillsCache = scanSkills();
@@ -158,8 +195,20 @@ router.get("/dashboard", (_req, res) => {
         zip: skills.filter((s) => s.format === "zip").length,
       },
     },
+    version: appVersion,
+    update: updateStatus,
     lastScan,
   });
+});
+
+router.post("/updates/apply", (_req, res) => {
+  if (process.send) {
+    console.log("[Backend] Sending apply-update request to parent Electron process...");
+    process.send({ type: "apply-update" });
+    res.json({ success: true });
+  } else {
+    res.status(400).json({ error: "No running under an Electron process fork." });
+  }
 });
 
 router.get("/skills-sh", async (_req, res) => {
