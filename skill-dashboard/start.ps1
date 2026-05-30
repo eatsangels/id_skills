@@ -1,13 +1,15 @@
 Write-Host "Starting Skill & Agent Dashboard..." -ForegroundColor Cyan
 
 $be = Start-Job -ScriptBlock {
-  node C:\ID_Skills\skill-dashboard\backend\src\server.js
-}
+  param($root)
+  node "$root\backend\src\server.js"
+} -ArgumentList $PSScriptRoot
 
 $fe = Start-Job -ScriptBlock {
-  Set-Location C:\ID_Skills\skill-dashboard\frontend
+  param($root)
+  Set-Location "$root\frontend"
   npx vite
-}
+} -ArgumentList $PSScriptRoot
 
 Start-Sleep -Seconds 2
 

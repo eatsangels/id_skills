@@ -1,6 +1,6 @@
 {
   "name": "skillnexus-desktop",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Desktop version of SkillNexus Dashboard",
   "main": "electron-main.js",
   "repository": {
@@ -24,7 +24,12 @@
     "wait-on": "^7.2.0"
   },
   "dependencies": {
-    "electron-updater": "^6.1.7"
+    "electron-updater": "^6.1.7",
+    "@vitalets/google-translate-api": "^9.2.1",
+    "adm-zip": "^0.5.16",
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "gray-matter": "^4.0.3"
   },
   "build": {
     "appId": "com.eatsangels.skillnexus",
@@ -36,6 +41,7 @@
       "electron-main.js",
       "skill-dashboard/backend/src/**/*",
       "skill-dashboard/backend/node_modules/**/*",
+      "skill-dashboard/backend/package.json",
       "skill-dashboard/frontend/dist/**/*",
       "package.json"
     ],
