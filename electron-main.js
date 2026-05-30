@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Notification } = require("electron");
+const { app, BrowserWindow, Notification, dialog } = require("electron");
 const { fork } = require("child_process");
 const path = require("path");
 const { autoUpdater } = require("electron-updater");
@@ -93,6 +93,16 @@ autoUpdater.on("update-available", (info) => {
     title: "Actualización disponible",
     body: `La versión ${info.version} se está descargando en segundo plano.`
   }).show();
+
+  if (mainWindow) {
+    dialog.showMessageBox(mainWindow, {
+      type: "info",
+      title: "Actualización disponible",
+      message: `Nueva versión disponible: v${info.version}`,
+      detail: "Se está descargando en segundo plano. Te avisaremos cuando esté lista para instalar.",
+      buttons: ["Aceptar"]
+    });
+  }
 });
 
 autoUpdater.on("update-downloaded", (info) => {
@@ -100,5 +110,22 @@ autoUpdater.on("update-downloaded", (info) => {
     title: "Actualización lista",
     body: "La nueva versión se aplicará automáticamente al reiniciar."
   }).show();
-  autoUpdater.quitAndInstall();
+
+  if (mainWindow) {
+    dialog.showMessageBox(mainWindow, {
+      type: "question",
+      title: "Actualización lista",
+      message: `La versión ${info.version} se ha descargado y está lista.`,
+      detail: "¿Quieres reiniciar la aplicación ahora para instalar la actualización?",
+      buttons: ["Reiniciar y actualizar", "Más tarde"],
+      defaultId: 0,
+      cancelId: 1
+    }).then((result) => {
+      if (result.response === 0) {
+        autoUpdater.quitAndInstall();
+      }
+    });
+  } else {
+    autoUpdater.quitAndInstall();
+  }
 });
