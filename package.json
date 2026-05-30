@@ -1,6 +1,6 @@
 {
   "name": "skillnexus-desktop",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Desktop version of SkillNexus Dashboard",
   "main": "electron-main.js",
   "repository": {
@@ -44,9 +44,6 @@
       "skill-dashboard/backend/package.json",
       "skill-dashboard/frontend/dist/**/*",
       "package.json"
-    ],
-    "asarUnpack": [
-      "skill-dashboard/backend/**/*"
     ],
     "win": {
       "target": "nsis",

@@ -9,7 +9,7 @@ let backendProcess;
 function startBackend() {
   // Determine if backend should be loaded from unpacked ASAR folder in production
   const backendPath = app.isPackaged
-    ? path.join(process.resourcesPath, "app.asar.unpacked", "skill-dashboard", "backend", "src", "server.js")
+    ? path.join(process.resourcesPath, "app.asar", "skill-dashboard", "backend", "src", "server.js")
     : path.join(__dirname, "skill-dashboard", "backend", "src", "server.js");
   // Define NODE_PATH for packaged app so it resolves root node_modules inside app.asar
   const nodeModulesPath = app.isPackaged
