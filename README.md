@@ -10,7 +10,7 @@ Administra tus habilidades de OpenCode y Claude Code desde una interfaz web ráp
 
 > [!TIP]
 > **¿Prefieres la comodidad de un programa instalable?** 
-> Ve a la sección de **[Releases en GitHub](https://github.com/eatsangels/id_skills/releases)**, descarga el archivo ejecutable (`.exe`) de la última versión e instálalo. Se iniciará de forma autónoma con su propio backend en segundo plano y te notificará automáticamente cuando haya nuevas actualizaciones disponibles.
+> Ve a la sección de **[Releases en GitHub](https://github.com/eatsangels/skillnexus/releases)**, descarga el archivo ejecutable (`.exe`) de la última versión e instálalo. Se iniciará de forma autónoma con su propio backend en segundo plano y te notificará automáticamente cuando haya nuevas actualizaciones disponibles.
 
 ---
 
@@ -19,7 +19,7 @@ Administra tus habilidades de OpenCode y Claude Code desde una interfaz web ráp
 El proyecto cuenta con un modo de ejecución dual: un panel de control web tradicional y una aplicación de escritorio nativa que auto-inicia todos los servicios del backend en segundo plano.
 
 ### Descarga e Instalación (Recomendado)
-1. Ve a **[Releases en GitHub](https://github.com/eatsangels/id_skills/releases)**.
+1. Ve a **[Releases en GitHub](https://github.com/eatsangels/skillnexus/releases)**.
 2. Descarga la versión más reciente del instalador: `ID.Skills.Dashboard.Setup.X.X.X.exe`.
 3. Ejecuta el archivo e instálalo. Se creará un acceso directo en tu escritorio.
 4. Al iniciar la aplicación, esta levantará automáticamente el servidor y los servicios locales. No necesitas abrir la consola ni iniciar scripts.
@@ -50,7 +50,7 @@ Si deseas trabajar en el desarrollo de la aplicación o empaquetarla tú mismo:
 ## Estructura del proyecto
 
 ```bash
-id_skills/
+skillnexus/
 ├── skill-dashboard/     # Código fuente del panel de control
 │   ├── frontend/        # React + Vite (Tailwind CSS v4)
 │   └── backend/         # Node.js + Express (Servicios de escaneo y terminal interactiva)

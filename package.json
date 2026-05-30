@@ -5,7 +5,7 @@
   "main": "electron-main.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/eatsangels/id_skills.git"
+    "url": "git+https://github.com/eatsangels/skillnexus.git"
   },
   "author": "eatsangels",
   "scripts": {
@@ -62,7 +62,7 @@
     "publish": {
       "provider": "github",
       "owner": "eatsangels",
-      "repo": "id_skills"
+      "repo": "skillnexus"
     }
   }
 }

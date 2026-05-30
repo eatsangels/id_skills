@@ -10,7 +10,7 @@ Manage your OpenCode and Claude Code skills from a fast and optimized web interf
 
 > [!TIP]
 > **Prefer the convenience of an installable app?**
-> Go to the **[GitHub Releases page](https://github.com/eatsangels/id_skills/releases)**, download the executable installer (`.exe`) for the latest version, and install it. It will run autonomously with its own backend in the background and notify you of any new updates.
+> Go to the **[GitHub Releases page](https://github.com/eatsangels/skillnexus/releases)**, download the executable installer (`.exe`) for the latest version, and install it. It will run autonomously with its own backend in the background and notify you of any new updates.
 
 ---
 
@@ -19,7 +19,7 @@ Manage your OpenCode and Claude Code skills from a fast and optimized web interf
 The project features a dual-mode setup: a traditional web dashboard and a native desktop application that automatically starts all backend services in the background.
 
 ### Download and Installation (Recommended)
-1. Go to **[GitHub Releases](https://github.com/eatsangels/id_skills/releases)**.
+1. Go to **[GitHub Releases](https://github.com/eatsangels/skillnexus/releases)**.
 2. Download the latest installer version: `ID.Skills.Dashboard.Setup.X.X.X.exe`.
 3. Run the installer. A shortcut will be created on your desktop.
 4. When you open the program, the backend services will spin up automatically. No terminal or startup scripts are needed.
@@ -50,7 +50,7 @@ If you want to work on developing the desktop app or package it yourself:
 ## Project Structure
 
 ```bash
-id_skills/
+skillnexus/
 ├── skill-dashboard/     # Dashboard source code
 │   ├── frontend/        # React + Vite (Tailwind CSS v4)
 │   └── backend/         # Node.js + Express (scanning services and interactive terminal)
