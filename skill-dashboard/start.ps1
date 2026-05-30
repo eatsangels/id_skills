@@ -1,27 +1,112 @@
-Write-Host "Starting Skill & Agent Dashboard..." -ForegroundColor Cyan
+<#
+.SYNOPSIS
+  SkillNexus - Script de inicio para el modo web (dashboard local)
+  Instala dependencias automáticamente si no están presentes.
+#>
+
+$ErrorActionPreference = "Stop"
+$root = $PSScriptRoot
+
+function Write-Step($msg) {
+  Write-Host ""
+  Write-Host "  $msg" -ForegroundColor Cyan
+}
+
+function Write-OK($msg) {
+  Write-Host "  ✔ $msg" -ForegroundColor Green
+}
+
+function Write-Warn($msg) {
+  Write-Host "  ⚠ $msg" -ForegroundColor Yellow
+}
+
+# ─── Banner ────────────────────────────────────────────────────────────────────
+Clear-Host
+Write-Host ""
+Write-Host "  ╔══════════════════════════════════════════╗" -ForegroundColor DarkMagenta
+Write-Host "  ║         SkillNexus  —  Web Mode          ║" -ForegroundColor Magenta
+Write-Host "  ╚══════════════════════════════════════════╝" -ForegroundColor DarkMagenta
+Write-Host ""
+
+# ─── Verificar Node.js ─────────────────────────────────────────────────────────
+Write-Step "Verificando Node.js..."
+try {
+  $nodeVersion = node --version 2>&1
+  Write-OK "Node.js $nodeVersion encontrado"
+} catch {
+  Write-Host ""
+  Write-Host "  ✘ Node.js no está instalado. Descárgalo desde https://nodejs.org" -ForegroundColor Red
+  Write-Host ""
+  Pause
+  exit 1
+}
+
+# ─── Instalar dependencias si faltan ──────────────────────────────────────────
+$locations = @(
+  @{ Label = "Backend";  Path = "$root\backend"  },
+  @{ Label = "Frontend"; Path = "$root\frontend" }
+)
+
+foreach ($loc in $locations) {
+  $nmPath = Join-Path $loc.Path "node_modules"
+  if (-not (Test-Path $nmPath)) {
+    Write-Step "Instalando dependencias del $($loc.Label) (primera vez)..."
+    Push-Location $loc.Path
+    try {
+      npm install --loglevel=warn
+      Write-OK "Dependencias del $($loc.Label) instaladas correctamente"
+    } catch {
+      Write-Host "  ✘ Error al instalar dependencias del $($loc.Label)" -ForegroundColor Red
+      Pop-Location
+      Pause
+      exit 1
+    }
+    Pop-Location
+  } else {
+    Write-OK "$($loc.Label): dependencias ya instaladas"
+  }
+}
+
+# ─── Iniciar servicios ────────────────────────────────────────────────────────
+Write-Step "Iniciando servicios..."
+Write-Host ""
 
 $be = Start-Job -ScriptBlock {
-  param($root)
-  node "$root\backend\src\server.js"
-} -ArgumentList $PSScriptRoot
+  param($path)
+  node "$path\backend\src\server.js"
+} -ArgumentList $root
 
 $fe = Start-Job -ScriptBlock {
-  param($root)
-  Set-Location "$root\frontend"
+  param($path)
+  Set-Location "$path\frontend"
   npx vite
-} -ArgumentList $PSScriptRoot
+} -ArgumentList $root
 
+# Esperar a que los servicios arranquen
+Start-Sleep -Seconds 3
+
+# ─── Info ──────────────────────────────────────────────────────────────────────
+Write-Host "  ┌─────────────────────────────────────────────┐" -ForegroundColor DarkGreen
+Write-Host "  │  ✔  Frontend  →  http://localhost:5173      │" -ForegroundColor Green
+Write-Host "  │  ✔  Backend   →  http://localhost:3001      │" -ForegroundColor Green
+Write-Host "  └─────────────────────────────────────────────┘" -ForegroundColor DarkGreen
+Write-Host ""
+Write-Host "  Abriendo el navegador..." -ForegroundColor DarkCyan
+
+# Intentar abrir el navegador automáticamente
 Start-Sleep -Seconds 2
+try {
+  Start-Process "http://localhost:5173"
+} catch { <# Sin navegador predeterminado, continuar #> }
 
-Write-Host "`n Backend: http://localhost:3001" -ForegroundColor Green
-Write-Host " Frontend: http://localhost:5173" -ForegroundColor Green
-Write-Host "`nPress any key to stop..." -ForegroundColor Yellow
-
+Write-Host ""
+Write-Host "  Presiona cualquier tecla para detener los servidores..." -ForegroundColor Yellow
 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 
-Stop-Job $be -ErrorAction SilentlyContinue
-Stop-Job $fe -ErrorAction SilentlyContinue
-Remove-Job $be -ErrorAction SilentlyContinue
-Remove-Job $fe -ErrorAction SilentlyContinue
-
-Write-Host "Stopped." -ForegroundColor Cyan
+# ─── Detener todo ─────────────────────────────────────────────────────────────
+Write-Host ""
+Write-Step "Deteniendo servicios..."
+Stop-Job  $be, $fe -ErrorAction SilentlyContinue
+Remove-Job $be, $fe -ErrorAction SilentlyContinue
+Write-OK "SkillNexus detenido. ¡Hasta luego!"
+Write-Host ""
