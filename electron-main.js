@@ -20,6 +20,7 @@ function startBackend() {
 
   backendProcess.on("exit", (code) => {
     console.log(`Backend process exited with code ${code}`);
+    backendProcess = null;
   });
 
   backendProcess.on("message", (msg) => {
@@ -115,7 +116,7 @@ autoUpdater.on("update-available", (info) => {
     body: `La versión ${info.version} se está descargando en segundo plano.`
   }).show();
 
-  if (backendProcess) {
+  if (backendProcess && backendProcess.connected) {
     backendProcess.send({ type: "update-available", version: info.version });
   }
 });
@@ -126,14 +127,14 @@ autoUpdater.on("update-downloaded", (info) => {
     body: `La versión ${info.version} ya se ha descargado y está lista para instalar.`
   }).show();
 
-  if (backendProcess) {
+  if (backendProcess && backendProcess.connected) {
     backendProcess.send({ type: "update-downloaded", version: info.version });
   }
 });
 
 autoUpdater.on("error", (err) => {
   console.error("Auto updater error:", err);
-  if (backendProcess) {
+  if (backendProcess && backendProcess.connected) {
     backendProcess.send({
       type: "update-error",
       error: err ? (err.message || String(err)) : "Error desconocido"
