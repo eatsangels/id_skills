@@ -83,7 +83,7 @@ app.whenReady().then(() => {
 
   // Initialize auto-updates in production
   if (app.isPackaged) {
-    autoUpdater.checkForUpdatesAndNotify().catch((err) => {
+    autoUpdater.checkForUpdates().catch((err) => {
       console.error("Auto updater error:", err);
     });
   }
