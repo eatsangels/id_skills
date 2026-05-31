@@ -3,6 +3,7 @@ import { spawn } from "child_process";
 import { scanSkills } from "./skill-scanner.js";
 import { scanAgents } from "./agent-scanner.js";
 import { getCatalog, refreshCatalog, searchSkills, fetchSkillDetail, installSkill, onCatalogRefreshed } from "./skills-sh-scanner.js";
+import { getAgentsCatalog, refreshAgentsCatalog, searchAgents, fetchAgentDetail, installAgent, onAgentsCatalogRefreshed } from "./agents-sh-scanner.js";
 import { homedir } from "os";
 import { join, dirname } from "path";
 import { CONFIG } from "./config.js";
@@ -13,7 +14,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Read app version from package.json dynamically
-let appVersion = "1.0.16"; // fallback — update this with each release
+let appVersion = "1.0.17"; // fallback — update this with each release
 try {
   // Posibles ubicaciones: dev (3 niveles arriba) o producción (app.asar)
   const candidates = [
@@ -74,6 +75,11 @@ scan();
 
 onCatalogRefreshed(() => {
   console.log("[API] Catalog refreshed, broadcasting update to all clients...");
+  broadcast("update", { lastScan });
+});
+
+onAgentsCatalogRefreshed(() => {
+  console.log("[API] Agents catalog refreshed, broadcasting update to all clients...");
   broadcast("update", { lastScan });
 });
 
@@ -268,6 +274,53 @@ router.post("/skills-sh/install", async (req, res) => {
     if (!source || !slug) return res.status(400).json({ error: "source and slug required" });
     const targetDir = join(homedir(), "Documents", "curso-opencode", ".opencode", "skills");
     const result = await installSkill(source, slug, targetDir);
+
+    // Actualizar el cache local del backend e informar al frontend mediante SSE de inmediato
+    scan();
+    broadcast("update", { lastScan });
+
+    res.json({ success: true, result });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.get("/agents-sh", async (_req, res) => {
+  try {
+    const agents = getAgentsCatalog();
+    res.json({ agents, total: agents.length });
+  } catch (e) {
+    res.status(502).json({ error: e.message });
+  }
+});
+
+router.get("/agents-sh/search", async (req, res) => {
+  try {
+    const q = req.query.q;
+    if (!q || q.length < 2) return res.json({ agents: [], count: 0 });
+    const results = await searchAgents(q);
+    res.json({ agents: results, count: results.length });
+  } catch (e) {
+    res.status(502).json({ error: e.message });
+  }
+});
+
+router.get("/agents-sh/:owner/:repo/:slug", async (req, res) => {
+  try {
+    const { owner, repo, slug } = req.params;
+    const source = `${owner}/${repo}`;
+    const detail = await fetchAgentDetail(source, slug);
+    res.json({ agent: detail });
+  } catch (e) {
+    res.status(404).json({ error: e.message });
+  }
+});
+
+router.post("/agents-sh/install", async (req, res) => {
+  try {
+    const { source, slug } = req.body;
+    if (!source || !slug) return res.status(400).json({ error: "source and slug required" });
+    const result = await installAgent(source, slug);
 
     // Actualizar el cache local del backend e informar al frontend mediante SSE de inmediato
     scan();

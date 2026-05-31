@@ -88,7 +88,7 @@ A concrete, specialized stateless function. It performs one task with high relia
 *   It installs all dependencies, builds the frontend, and runs `electron-builder --win --publish always`.
 *   The workflow requires `permissions: contents: write` and uses `GH_TOKEN` (not `GITHUB_TOKEN`) for electron-builder.
 *   Artifacts (`.exe`, `.blockmap`, `latest.yml`) are uploaded to GitHub Releases automatically.
-*   **Latest release**: `v1.0.16` — includes TypeScript configuration integration (`tsconfig.json`) and automated React typing injection (`@types/react` and `@types/react-dom`) in the temporary Remotion rendering workspace to eliminate local IDE compiler errors.
+*   **Latest release**: `v1.0.17` — includes Agents.sh search, discovery, and installation interface for Claude Code subagents.
 
 ---
 
@@ -108,7 +108,15 @@ A concrete, specialized stateless function. It performs one task with high relia
     2. Fallback to GitHub Tree Resolution: Queries the GitHub Git Trees API to find the exact relative path of the `SKILL.md` file if folder names do not match the skill slug, downloading it directly to the local skills directory.
 *   **Parser Safety (v1.0.12)**: The scanner parsed global lists using `npx skills add [source] --list`. The regex now uses a robust `\s+` mapping to capture skill names under varying spaces and OS terminal output configurations.
 
-### 3. 🆕 Remotion Video Render
+### 3. Agents.sh Search & Discovery (v1.0.17)
+*   **Paths**:
+    *   `GET /api/agents-sh`: Fetches the global remote agents catalog.
+    *   `GET /api/agents-sh/search?q=...`: Search remote subagents catalog.
+    *   `GET /api/agents-sh/:owner/:repo/:slug`: Retrieves detailed subagent specification and prompt content.
+    *   `POST /api/agents-sh/install`: Downloads and installs the remote agent to `~/.claude/agents/`.
+*   **Flow**: Uses the `agents-sh-scanner.js` cache-first architecture with persistent JSON storage and automated background refresh cycles.
+
+### 4. 🆕 Remotion Video Render
 *   **Path**: `POST /api/remotion/render`
 *   **Body**: `{ code: string, compositionId?: string, durationInFrames?: number, fps?: number, width?: number, height?: number }`
 *   **Output**: Server-Sent Events (SSE) stream (`text/event-stream`).
@@ -120,7 +128,7 @@ A concrete, specialized stateless function. It performs one task with high relia
     5. On completion sends `data: {"done": true, "outputPath": "..."}`.
 *   **Output file**: `C:\ID_Skills\.temp_remotion\output.mp4` (gitignored, not committed).
 
-### 4. Remotion Auth Status
+### 5. Remotion Auth Status
 *   **Path**: `GET /api/remotion/auth-status`
 *   **Output**: `{ loggedIn: boolean, email?: string, name?: string }`
 *   **Note**: Checks `belt whoami` for cloud rendering auth. Local rendering does not require login.

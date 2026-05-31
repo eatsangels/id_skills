@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import type { SkillSummary, AgentSummary, DashboardStats, SkillsShSkill, SystemPaths } from "./api";
-import { fetchSkills, fetchAgents, fetchDashboard, fetchSkillsSh, BASE } from "./api";
+import type { SkillSummary, AgentSummary, DashboardStats, SkillsShSkill, SystemPaths, AgentsShAgent } from "./api";
+import { fetchSkills, fetchAgents, fetchDashboard, fetchSkillsSh, fetchAgentsSh, BASE } from "./api";
 import StatsHeader from "./components/StatsHeader.tsx";
 import TabNav from "./components/TabNav.tsx";
 import SkillCard from "./components/SkillCard.tsx";
@@ -9,10 +9,12 @@ import SkillModal from "./components/SkillModal.tsx";
 import AgentModal from "./components/AgentModal.tsx";
 import SkillsShCard from "./components/SkillsShCard.tsx";
 import SkillsShModal from "./components/SkillsShModal.tsx";
+import AgentsShCard from "./components/AgentsShCard.tsx";
+import AgentsShModal from "./components/AgentsShModal.tsx";
 import HelpModal from "./components/HelpModal.tsx";
 import VideoStudio from "./components/VideoStudio.tsx";
 
-type Tab = "skills" | "agents" | "skills-sh" | "video";
+type Tab = "skills" | "agents" | "skills-sh" | "agents-sh" | "video";
 type ViewMode = "all" | "grouped";
 
 const CATEGORY_ORDER = [
@@ -43,19 +45,24 @@ export default function App() {
   const [tab, setTab] = useState<Tab>("agents");
   const [view, setView] = useState<ViewMode>("all");
   const [skillsShView, setSkillsShView] = useState<ViewMode>("all");
+  const [agentsShView, setAgentsShView] = useState<ViewMode>("all");
   const [skills, setSkills] = useState<SkillSummary[]>([]);
   const [agents, setAgents] = useState<AgentSummary[]>([]);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [skillsSh, setSkillsSh] = useState<SkillsShSkill[]>([]);
+  const [agentsSh, setAgentsSh] = useState<AgentsShAgent[]>([]);
   const [search, setSearch] = useState("");
   const [frameworkFilter, setFrameworkFilter] = useState("");
   const [modeFilter, setModeFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [sourceFilter, setSourceFilter] = useState("");
   const [skillsShCategoryFilter, setSkillsShCategoryFilter] = useState("");
+  const [agentsShCategoryFilter, setAgentsShCategoryFilter] = useState("");
+  const [agentsShSourceFilter, setAgentsShSourceFilter] = useState("");
   const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
   const [selectedSkillsSh, setSelectedSkillsSh] = useState<SkillsShSkill | null>(null);
+  const [selectedAgentsSh, setSelectedAgentsSh] = useState<AgentsShAgent | null>(null);
   const [loading, setLoading] = useState(true);
   const [syncToast, setSyncToast] = useState<{ show: boolean; message: string } | null>(null);
   const [systemPaths, setSystemPaths] = useState<SystemPaths | null>(null);
@@ -93,6 +100,13 @@ export default function App() {
       setSkillsSh(sh.skills || []);
     }).catch((err) => {
       console.error("Failed to load skills.sh catalog:", err);
+    });
+
+    // 3. Fetch remote agents-sh catalog asynchronously in the background
+    fetchAgentsSh().then((ash) => {
+      setAgentsSh(ash.agents || []);
+    }).catch((err) => {
+      console.error("Failed to load agents.sh catalog:", err);
     });
   };
 
@@ -202,6 +216,28 @@ export default function App() {
     return acc;
   }, [] as { category: string; items: SkillsShSkill[] }[]);
 
+  const allAgentsShSources = [...new Set(agentsSh.map((s) => s.source))].sort();
+  const allAgentsShCategories = [...new Set(agentsSh.map((s) => s.category || "Other"))]
+    .sort((a, b) => {
+      const ia = CATEGORY_ORDER.indexOf(a);
+      const ib = CATEGORY_ORDER.indexOf(b);
+      return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+    });
+
+  const filteredAgentsSh = agentsSh.filter((s) => {
+    const q = search.toLowerCase();
+    if (q && !s.name.toLowerCase().includes(q) && !(s.description || "").toLowerCase().includes(q) && !s.source.toLowerCase().includes(q)) return false;
+    if (agentsShSourceFilter && s.source !== agentsShSourceFilter) return false;
+    if (agentsShCategoryFilter && (s.category || "Other") !== agentsShCategoryFilter) return false;
+    return true;
+  });
+
+  const groupedAgentsSh = allAgentsShCategories.reduce((acc, cat) => {
+    const items = filteredAgentsSh.filter((s) => (s.category || "Other") === cat);
+    if (items.length > 0) acc.push({ category: cat, items });
+    return acc;
+  }, [] as { category: string; items: AgentsShAgent[] }[]);
+
   const groupedAgents = allCategories.reduce((acc, cat) => {
     const items = filteredAgents.filter((a) => a.category === cat);
     if (items.length > 0) acc.push({ category: cat, items });
@@ -306,6 +342,40 @@ export default function App() {
                     </button>
                   </>
                 )}
+                {tab === "agents-sh" && (
+                  <>
+                    {allAgentsShCategories.length > 0 && (
+                      <select
+                        value={agentsShCategoryFilter}
+                        onChange={(e) => setAgentsShCategoryFilter(e.target.value)}
+                        className="bg-surface-900 border border-surface-700/50 rounded-xl px-4 py-2.5 text-sm text-surface-200 focus:outline-none focus:border-brand-500/50 cursor-pointer appearance-none min-w-[150px]"
+                      >
+                        <option value="">All categories</option>
+                        {allAgentsShCategories.map((c) => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
+                      </select>
+                    )}
+                    {allAgentsShSources.length > 0 && (
+                      <select
+                        value={agentsShSourceFilter}
+                        onChange={(e) => setAgentsShSourceFilter(e.target.value)}
+                        className="bg-surface-900 border border-surface-700/50 rounded-xl px-4 py-2.5 text-sm text-surface-200 focus:outline-none focus:border-brand-500/50 cursor-pointer appearance-none min-w-[200px]"
+                      >
+                        <option value="">All sources</option>
+                        {allAgentsShSources.map((s) => (
+                          <option key={s} value={s}>{s}</option>
+                        ))}
+                      </select>
+                    )}
+                    <button
+                      onClick={() => setAgentsShView(agentsShView === "all" ? "grouped" : "all")}
+                      className="px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 bg-surface-800/50 hover:bg-surface-700/50 text-surface-300 hover:text-surface-100 border border-surface-700/30 hover:border-surface-600/50 cursor-pointer whitespace-nowrap"
+                    >
+                      {agentsShView === "all" ? "Group by category" : "Show all"}
+                    </button>
+                  </>
+                )}
                 {tab === "agents" && (
                   <>
                     <select
@@ -367,6 +437,48 @@ export default function App() {
             ))}
             {filteredAgents.length === 0 && (
               <div className="col-span-full text-center py-16">
+                <div className="text-4xl mb-3 opacity-30">?</div>
+                <p className="text-surface-500">No agents match your filters</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {tab === "agents-sh" && agentsShView === "all" && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {filteredAgentsSh.map((s, i) => (
+              <div key={s.id} className="animate-fade-in" style={{ animationDelay: `${(i % 20) * 25}ms` }}>
+                <AgentsShCard agent={s} onClick={() => setSelectedAgentsSh(s)} />
+              </div>
+            ))}
+            {filteredAgentsSh.length === 0 && (
+              <div className="col-span-full text-center py-16">
+                <div className="text-4xl mb-3 opacity-30">?</div>
+                <p className="text-surface-500">No agents found on agents.sh</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {tab === "agents-sh" && agentsShView === "grouped" && (
+          <div className="space-y-10">
+            {groupedAgentsSh.map(({ category, items }) => (
+              <section key={category} className="animate-fade-in">
+                <div className={`inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-gradient-to-r ${CATEGORY_COLORS[category] || "from-surface-800/50 to-surface-900/50 border-surface-700/30"} border mb-5`}>
+                  <h2 className="text-sm font-semibold text-surface-200 tracking-wide">{category}</h2>
+                  <span className="text-xs font-medium text-surface-500 bg-surface-900/50 px-2.5 py-0.5 rounded-full">{items.length}</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                  {items.map((s, i) => (
+                    <div key={s.id} className="animate-fade-in" style={{ animationDelay: `${i * 20}ms` }}>
+                      <AgentsShCard agent={s} onClick={() => setSelectedAgentsSh(s)} />
+                    </div>
+                  ))}
+                </div>
+              </section>
+            ))}
+            {groupedAgentsSh.length === 0 && (
+              <div className="text-center py-16">
                 <div className="text-4xl mb-3 opacity-30">?</div>
                 <p className="text-surface-500">No agents match your filters</p>
               </div>
@@ -457,6 +569,13 @@ export default function App() {
         <SkillsShModal
           skill={selectedSkillsSh}
           onClose={() => setSelectedSkillsSh(null)}
+          onInstallSuccess={() => reloadData(true)}
+        />
+      )}
+      {selectedAgentsSh && (
+        <AgentsShModal
+          agent={selectedAgentsSh}
+          onClose={() => setSelectedAgentsSh(null)}
           onInstallSuccess={() => reloadData(true)}
         />
       )}

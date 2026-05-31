@@ -189,3 +189,70 @@ export async function installSkillsSh(source: string, slug: string): Promise<{ s
   if (!res.ok) throw new Error("Install failed");
   return res.json();
 }
+
+export interface AgentsShAgent {
+  id: string;
+  name: string;
+  slug: string;
+  source: string;
+  topic: string | null;
+  url: string;
+  installUrl: string;
+  description: string;
+  descriptionEn?: string;
+  descriptionEs?: string;
+  category: string;
+}
+
+export interface AgentsShDetail {
+  source: string;
+  slug: string;
+  name: string;
+  description: string;
+  descriptionEn?: string;
+  descriptionEs?: string;
+  category: string;
+  prompt: string | null;
+  url: string;
+  path: string;
+  error?: string;
+}
+
+export async function fetchAgentsSh(): Promise<{ agents: AgentsShAgent[]; total: number }> {
+  try {
+    const res = await fetch(`${BASE}/agents-sh`);
+    if (!res.ok) return { agents: [], total: 0 };
+    return await res.json();
+  } catch (err) {
+    console.error("Error fetching agents-sh:", err);
+    return { agents: [], total: 0 };
+  }
+}
+
+export async function searchAgentsSh(q: string): Promise<{ agents: AgentsShAgent[]; count: number }> {
+  try {
+    const res = await fetch(`${BASE}/agents-sh/search?q=${encodeURIComponent(q)}`);
+    if (!res.ok) return { agents: [], count: 0 };
+    return await res.json();
+  } catch (err) {
+    console.error("Error searching agents-sh:", err);
+    return { agents: [], count: 0 };
+  }
+}
+
+export async function fetchAgentsShDetail(source: string, slug: string): Promise<{ agent: AgentsShDetail }> {
+  const [owner, repo] = source.split("/");
+  const res = await fetch(`${BASE}/agents-sh/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/${encodeURIComponent(slug)}`);
+  if (!res.ok) throw new Error("Not found");
+  return res.json();
+}
+
+export async function installAgentsSh(source: string, slug: string): Promise<{ success: boolean; result: unknown }> {
+  const res = await fetch(`${BASE}/agents-sh/install`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ source, slug }),
+  });
+  if (!res.ok) throw new Error("Install failed");
+  return res.json();
+}
