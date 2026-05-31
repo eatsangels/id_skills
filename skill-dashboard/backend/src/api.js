@@ -13,7 +13,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Read app version from package.json dynamically
-let appVersion = "1.0.14"; // fallback — update this with each release
+let appVersion = "1.0.15"; // fallback — update this with each release
 try {
   // Posibles ubicaciones: dev (3 niveles arriba) o producción (app.asar)
   const candidates = [

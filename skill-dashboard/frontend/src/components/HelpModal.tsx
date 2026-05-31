@@ -33,6 +33,16 @@ export default function HelpModal({ systemPaths, onClose }: Props) {
       title: "Centro de Ayuda - SkillNexus",
       aboutTitle: "Acerca de SkillNexus",
       aboutDesc: "SkillNexus es un centro de control profesional y premium diseñado para la orquestación, prueba e instalación local de habilidades y agentes cognitivos. Funciona perfectamente integrado con sistemas basados en Claude Code y OpenCode.",
+      diffTitle: "🧠 Agente vs. 🔧 Skill",
+      diffIntro: "La diferencia principal es que un Agente decide qué hacer, mientras que una Skill sabe cómo hacer una tarea específica.",
+      agentTitle: "Agente (Agent)",
+      agentDesc: "Es una IA que recibe un objetivo general, analiza la situación, toma decisiones, selecciona herramientas o skills, ejecuta secuencias de acciones y se adapta a los resultados para resolver problemas complejos de manera autónoma.",
+      agentExample: 'Ejemplo: "Crea una app de Uber Eats" -> El agente diseña la base de datos, programa el frontend, configura Supabase y realiza el despliegue de forma autónoma.',
+      skillTitle: "Skill (Habilidad)",
+      skillDesc: "Es una capacidad concreta y especializada. No toma decisiones complejas ni formula planes por sí sola; simplemente ejecuta de forma experta la tarea exacta para la que fue creada.",
+      skillExample: 'Ejemplo: "Generar código React" -> Recibe una entrada como "Crear formulario de login" y devuelve estrictamente el componente correspondiente.',
+      analogyTitle: "Analogía Sencilla: La Empresa",
+      analogyDesc: "En una empresa: Agente = Gerente | Skills = Empleados especializados. El gerente decide la estrategia (\"Necesitamos una web\") y coordina y delega las tareas a los especialistas (diseñador, programador, DevOps). Los especialistas ejecutan sus habilidades concretas.",
       cliTitle: "Comandos Rápidos de la CLI",
       cliDesc: "Puedes interactuar con tus habilidades y agentes directamente desde la terminal del sistema ejecutando:",
       shortcutTitle: "Atajos de Teclado",
@@ -56,6 +66,16 @@ export default function HelpModal({ systemPaths, onClose }: Props) {
       title: "Help Center - SkillNexus",
       aboutTitle: "About SkillNexus",
       aboutDesc: "SkillNexus is a professional, premium control center designed for orchestrating, testing, and installing local cognitive skills and agents. It integrates seamlessly with cognitive execution environments such as Claude Code and OpenCode.",
+      diffTitle: "🧠 Agent vs. 🔧 Skill",
+      diffIntro: "The primary difference is that an Agent decides what to do, while a Skill knows how to perform a specific task.",
+      agentTitle: "Agent",
+      agentDesc: "An AI that receives a general goal, analyzes the context, makes decisions, chooses appropriate tools or skills, executes action sequences, and adapts based on outcomes to solve complex tasks autonomously.",
+      agentExample: 'Example: "Create a Uber Eats clone" -> The agent plans the DB design, writes the frontend, configures Supabase, and deploys it.',
+      skillTitle: "Skill",
+      skillDesc: "A concrete, specialized capability. It does not make high-level decisions or formulate strategic plans on its own; it simply performs the exact task it was programmed for.",
+      skillExample: 'Example: "Generate React Code" -> Takes an input like "Create a login form" and returns strictly the code snippet.',
+      analogyTitle: "Simple Analogy: The Company",
+      analogyDesc: "In a company: Agent = Manager | Skills = Specialized Employees. The manager decides the strategy (\"We need a website\") and delegates tasks to the specialists (designer, programmer, DevOps). The specialists perform their specific skills.",
       cliTitle: "CLI Quick Commands",
       cliDesc: "You can interact with your skills and agents directly from your system console by running:",
       shortcutTitle: "Keyboard Shortcuts",
@@ -131,6 +151,63 @@ export default function HelpModal({ systemPaths, onClose }: Props) {
               {t.aboutTitle}
             </h3>
             <p className="text-sm text-surface-300 leading-relaxed">{t.aboutDesc}</p>
+          </div>
+
+          {/* Difference between Agent and Skill */}
+          <div className="border border-surface-800/60 bg-surface-950/20 rounded-xl p-5 space-y-4">
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-4 bg-brand-500 rounded-full"></span>
+              <h3 className="text-xs font-bold text-surface-200 uppercase tracking-wider">
+                {t.diffTitle}
+              </h3>
+            </div>
+            
+            <p className="text-xs text-surface-300 leading-relaxed font-semibold italic bg-surface-950/60 p-3 rounded-lg border border-surface-800/40">
+              "{t.diffIntro}"
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Agent Card */}
+              <div className="bg-surface-900/60 border border-brand-500/20 rounded-xl p-4 space-y-2.5">
+                <div className="flex items-center gap-1.5 text-brand-400 font-bold text-sm">
+                  <span>🧠</span>
+                  <span>{t.agentTitle}</span>
+                </div>
+                <p className="text-xs text-surface-300 leading-relaxed">
+                  {t.agentDesc}
+                </p>
+                <div className="text-[11px] text-brand-300/80 bg-brand-500/5 border border-brand-500/10 rounded p-2.5 font-mono italic">
+                  {t.agentExample}
+                </div>
+              </div>
+
+              {/* Skill Card */}
+              <div className="bg-surface-900/60 border border-blue-500/20 rounded-xl p-4 space-y-2.5">
+                <div className="flex items-center gap-1.5 text-blue-400 font-bold text-sm">
+                  <span>🔧</span>
+                  <span>{t.skillTitle}</span>
+                </div>
+                <p className="text-xs text-surface-300 leading-relaxed">
+                  {t.skillDesc}
+                </p>
+                <div className="text-[11px] text-blue-300/80 bg-blue-500/5 border border-blue-500/10 rounded p-2.5 font-mono italic">
+                  {t.skillExample}
+                </div>
+              </div>
+            </div>
+
+            {/* Analogy Box */}
+            <div className="bg-surface-950/40 border border-surface-800/50 rounded-xl p-4 flex gap-3">
+              <div className="text-xl shrink-0">🏢</div>
+              <div className="space-y-1">
+                <h4 className="text-xs font-bold text-surface-300">
+                  {t.analogyTitle}
+                </h4>
+                <p className="text-xs text-surface-400 leading-relaxed">
+                  {t.analogyDesc}
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Paths */}

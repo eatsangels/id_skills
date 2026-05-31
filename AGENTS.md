@@ -72,7 +72,7 @@ id_skills/
 *   It installs all dependencies, builds the frontend, and runs `electron-builder --win --publish always`.
 *   The workflow requires `permissions: contents: write` and uses `GH_TOKEN` (not `GITHUB_TOKEN`) for electron-builder.
 *   Artifacts (`.exe`, `.blockmap`, `latest.yml`) are uploaded to GitHub Releases automatically.
-*   **Latest release**: `v1.0.14` — includes persistent home directory configuration cache path relocation for ASAR read-only environments, and auto-reconnecting SSE layout synchronization hooks.
+*   **Latest release**: `v1.0.15` — includes persistent home directory configuration cache path relocation for ASAR read-only environments, auto-reconnecting SSE layout synchronization hooks, and a structured visual comparison section explaining the difference between Agents and Skills.
 
 ---
 
