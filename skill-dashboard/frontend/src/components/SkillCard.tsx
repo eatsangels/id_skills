@@ -17,8 +17,16 @@ export default function SkillCard({ skill, onClick }: Props) {
   };
 
   return (
-    <button
+    <div
       onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+      role="button"
+      tabIndex={0}
       className="w-full text-left group relative bg-surface-900/40 backdrop-blur-sm border border-surface-800/50 rounded-2xl p-5 transition-all duration-300 hover:bg-surface-900/80 hover:border-brand-500/30 hover:shadow-lg hover:shadow-brand-500/5 cursor-pointer"
     >
       <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-brand-500/0 via-transparent to-brand-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
@@ -63,6 +71,6 @@ export default function SkillCard({ skill, onClick }: Props) {
           </div>
         )}
       </div>
-    </button>
+    </div>
   );
 }

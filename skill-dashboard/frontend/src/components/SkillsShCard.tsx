@@ -23,8 +23,16 @@ export default function SkillsShCard({ skill, onClick }: Props) {
   };
 
   return (
-    <button
+    <div
       onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+      role="button"
+      tabIndex={0}
       className="w-full text-left group relative bg-surface-900/40 backdrop-blur-sm border border-surface-800/50 rounded-2xl p-5 transition-all duration-300 hover:bg-surface-900/80 hover:border-emerald-500/30 hover:shadow-lg hover:shadow-emerald-500/5 cursor-pointer"
     >
       <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-emerald-500/0 via-transparent to-emerald-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
@@ -62,6 +70,6 @@ export default function SkillsShCard({ skill, onClick }: Props) {
           <span className="text-xs text-surface-500 bg-surface-800/60 px-2 py-0.5 rounded-md font-mono">{skill.source}</span>
         </div>
       </div>
-    </button>
+    </div>
   );
 }
