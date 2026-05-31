@@ -449,7 +449,11 @@ export default function App() {
         <AgentModal name={selectedAgent} onClose={() => setSelectedAgent(null)} />
       )}
       {selectedSkillsSh && (
-        <SkillsShModal skill={selectedSkillsSh} onClose={() => setSelectedSkillsSh(null)} />
+        <SkillsShModal
+          skill={selectedSkillsSh}
+          onClose={() => setSelectedSkillsSh(null)}
+          onInstallSuccess={() => reloadData(true)}
+        />
       )}
       {showHelp && (
         <HelpModal systemPaths={systemPaths} onClose={() => setShowHelp(false)} />

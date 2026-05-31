@@ -266,10 +266,21 @@ router.post("/skills-sh/install", async (req, res) => {
     if (!source || !slug) return res.status(400).json({ error: "source and slug required" });
     const targetDir = join(homedir(), "Documents", "curso-opencode", ".opencode", "skills");
     const result = await installSkill(source, slug, targetDir);
+
+    // Actualizar el cache local del backend e informar al frontend mediante SSE de inmediato
+    scan();
+    broadcast("update", { lastScan });
+
     res.json({ success: true, result });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
+});
+
+router.post("/refresh", (req, res) => {
+  scan();
+  broadcast("update", { lastScan });
+  res.json({ success: true, lastScan });
 });
 
 let clients = [];
@@ -317,6 +328,16 @@ function setupWatchers() {
   };
 
   for (const dir of dirsToWatch) {
+    // Asegurar que el directorio de destino exista antes de inicializar el watcher
+    if (!existsSync(dir)) {
+      try {
+        mkdirSync(dir, { recursive: true });
+        console.log(`[Watcher] Pre-created watched directory: ${dir}`);
+      } catch (err) {
+        console.warn(`[Watcher] Could not pre-create directory ${dir}:`, err);
+      }
+    }
+
     if (existsSync(dir)) {
       try {
         watch(dir, { recursive: true }, (eventType, filename) => {

@@ -5,9 +5,10 @@ import { fetchSkillsShDetail, installSkillsSh } from "../api";
 interface Props {
   skill: SkillsShSkill;
   onClose: () => void;
+  onInstallSuccess?: () => void;
 }
 
-export default function SkillsShModal({ skill, onClose }: Props) {
+export default function SkillsShModal({ skill, onClose, onInstallSuccess }: Props) {
   const [copied, setCopied] = useState(false);
   const [detail, setDetail] = useState<SkillsShDetail | null>(null);
   const [installing, setInstalling] = useState(false);
@@ -28,6 +29,9 @@ export default function SkillsShModal({ skill, onClose }: Props) {
     try {
       await installSkillsSh(skill.source, skill.slug);
       setInstalled(true);
+      if (onInstallSuccess) {
+        onInstallSuccess();
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Install failed");
     } finally {
