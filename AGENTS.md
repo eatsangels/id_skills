@@ -169,24 +169,26 @@ When adding a new template, export it from `templates.ts` and it will appear aut
 
 ## 🎨 Visual Design Tokens (brandkit Guide)
 
-The workspace frontend uses **Tailwind CSS v4** with a custom obsidian dark theme. When modifying elements, strictly use the following variables:
+The workspace frontend uses **Tailwind CSS v4** with a custom **Neo-Brutalist Pop** design system. When modifying elements, strictly use the following variables and design tokens:
 
 ### 1. Colors
-*   `--color-surface-975` (`#05070b`): Canvas background.
-*   `--color-surface-950` (`#080c14`): Main container background.
-*   `--color-surface-900` (`#0d1321`): Cards and dropdown panels.
-*   `--color-surface-800` (`#1e293b`): Element borders (use low opacity: e.g., `border-surface-800/60`).
-*   `--color-brand-600` (`#7c3aed`): Violet brand accent color.
-*   `--color-brand-500` (`#8b5cf6`): Focus glow/active indicator.
+*   `--color-surface-975` (`#FAF6F0`): Warm off-white "crema" canvas background.
+*   `--color-surface-950` / `--color-surface-900` (`#FFFFFF`): Main container and card backgrounds.
+*   `--color-brand-600` (`#FCE22A`): Bold neon yellow accent for active nav states and primary buttons.
+*   `--color-brand-300` / Secondary Highlights: Accent colors like pastel lavender (`#C5B4E3`) and peach (`#FFB07F`) for tags, indicators, and headers.
+*   `Text & Titles`: Pure black (`#000000`) for high-contrast legibility.
 
 ### 2. Typography
-*   `--font-sans` (`Poppins`): Geometric sans-serif used for overall dashboard controls, navigation, headings, and labels.
-*   `--font-serif` (`Lora`): Editorial serif font used for descriptive and narrative text blocks to improve reading flow and brand elegance.
-*   `--font-mono` (`JetBrains Mono`): Monospace font for code components, commands, and JSON data.
+*   `--font-sans` (`Plus Jakarta Sans`): Body copy, labels, details, and general controls.
+*   `--font-display` (`Space Grotesk`): Headings, logos, and high-impact titles.
+*   `--font-mono` (`JetBrains Mono`): Monospace data, logs, command prompts, and JSON displays.
 
-### 3. Micro-interactions
-*   Transitions: Use `transition-all duration-200` on hovers.
-*   Borders: Avoid thick borders. Prefer `border border-surface-700/50` or `border border-white/5`.
+### 3. Borders & Shadows
+*   **Borders**: Strictly use `2px` or `3px` solid black borders (`border-2 border-black` / `border-3 border-black`). Avoid soft borders.
+*   **Shadows**: Use hard-edged, solid black shadows instead of blurry blurs.
+    *   *Default*: `shadow-[4px_4px_0px_0px_#000000]`
+    *   *Interactive Hover*: Shift with `hover:translate-x-[-3px] hover:translate-y-[-3px] hover:shadow-[7px_7px_0px_0px_#000000]` for a tactile press response.
+    *   *Transitions*: Apply `transition-all duration-150 ease-in-out`.
 
 ---
 
