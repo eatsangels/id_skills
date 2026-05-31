@@ -72,7 +72,7 @@ id_skills/
 *   It installs all dependencies, builds the frontend, and runs `electron-builder --win --publish always`.
 *   The workflow requires `permissions: contents: write` and uses `GH_TOKEN` (not `GITHUB_TOKEN`) for electron-builder.
 *   Artifacts (`.exe`, `.blockmap`, `latest.yml`) are uploaded to GitHub Releases automatically.
-*   **Latest release**: `v1.0.11` — includes Remotion Video Studio + Template Library.
+*   **Latest release**: `v1.0.12` — includes Remotion Video Studio, Template Library, robust `skills.sh` parser, and Unicode-safe PowerShell starter.
 
 ---
 
@@ -84,12 +84,13 @@ id_skills/
 *   **Output**: Server-Sent Events (SSE) stream (`text/event-stream`).
 *   **Implementation Note**: Streams chunks formatted as `data: {"chunk": "..."}` or `data: {"done": true}`. The backend uses the native `opencode` CLI or standard execution binaries.
 
-### 2. Skill Installer
-*   **Path**: `POST /api/skills-sh/install`
-*   **Body**: `{ source: string, slug: string }`
+### 2. Skill Installer & Catalog
+*   **Path**: `GET /api/skills-sh` and `POST /api/skills-sh/install`
+*   **Body (Install)**: `{ source: string, slug: string }`
 *   **Flow**:
     1. Prefer CLI-based installation: Runs `npx -y skills add <source> --skill <slug> --yes`.
     2. Fallback to GitHub Tree Resolution: Queries the GitHub Git Trees API to find the exact relative path of the `SKILL.md` file if folder names do not match the skill slug, downloading it directly to the local skills directory.
+*   **Parser Safety (v1.0.12)**: The scanner parsed global lists using `npx skills add [source] --list`. The regex now uses a robust `\s+` mapping to capture skill names under varying spaces and OS terminal output configurations.
 
 ### 3. 🆕 Remotion Video Render
 *   **Path**: `POST /api/remotion/render`
@@ -193,6 +194,7 @@ The `skill-dashboard/start.ps1` script now handles first-time setup automaticall
 6. Waits for keypress to gracefully stop both services.
 
 **New users only need to run `.\start.ps1` — no manual `npm install` required.**
+*Note on Windows compatibility*: The script is fully Unicode-safe to prevent standard parsing crashes in Windows PowerShell environments using legacy codepages.
 
 ### .gitignore Rules
 The following are intentionally excluded from version control:
@@ -232,3 +234,9 @@ playground_cwd/     # Temporary agent execution dirs
 
 7.  **🆕 First-time web setup (new users)**:
     *   The `start.ps1` script handles `npm install` automatically. If a user reports the dashboard not loading, check that `node_modules` was installed in both `backend/` and `frontend/`. Running `.\start.ps1` again will fix it.
+
+8.  **PowerShell Scripting Characters & Encoding**:
+    *   Avoid using non-ASCII characters or complex emojis in PowerShell scripts (`.ps1`) to remain resilient across differing Windows system locales and active codepages (e.g. CP1252 vs CP65001).
+
+9.  **Flexible CLI Log Parsers**:
+    *   When parsing standard output from CLIs (`npx skills`, etc.), avoid hardcoding exact spaces (like `\s{4}`) due to system-dependent indentation and CLI version updates. Always use flexible spacers like `\s+`.
