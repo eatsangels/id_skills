@@ -1,5 +1,12 @@
 import { exec } from "child_process";
 import { generateSpanishDescription } from "./translator.js";
+import { fileURLToPath } from "url";
+import { join, dirname } from "path";
+import { readFileSync, writeFileSync, existsSync } from "fs";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const CACHE_FILE_PATH = join(__dirname, "..", "skills-catalog-cache.json");
 
 const KNOWN_SOURCES = [
   "vercel-labs/agent-skills",
@@ -69,6 +76,17 @@ function classifySkill(name, source, desc) {
 let catalogCache = [];
 let catalogTime = null;
 const CACHE_TTL = 10 * 60 * 1000;
+
+try {
+  if (existsSync(CACHE_FILE_PATH)) {
+    const data = readFileSync(CACHE_FILE_PATH, "utf-8").replace(/^\uFEFF/, "");
+    catalogCache = JSON.parse(data);
+    catalogTime = Date.now();
+    console.log(`[Skills-sh] Loaded ${catalogCache.length} skills from persistent cache.`);
+  }
+} catch (err) {
+  console.error("[Skills-sh] Error loading cache file:", err);
+}
 
 function stripAnsi(str) {
   return str.replace(/\u001b\[.*?m/g, "").trim();
@@ -176,6 +194,25 @@ export function getCatalog(force = false) {
   if (!force && catalogCache.length > 0 && catalogTime && Date.now() - catalogTime < CACHE_TTL) {
     return catalogCache;
   }
+
+  // Trigger background refresh if cache is empty or expired, but do not block
+  if (catalogCache.length === 0 || !catalogTime || Date.now() - catalogTime >= CACHE_TTL) {
+    console.log("[Skills-sh] Cache expired or empty. Triggering background refresh...");
+    if (!global.isRefreshingCatalog) {
+      global.isRefreshingCatalog = true;
+      refreshCatalog()
+        .then(() => {
+          console.log("[Skills-sh] Background refresh completed successfully.");
+        })
+        .catch((err) => {
+          console.error("[Skills-sh] Background refresh failed:", err);
+        })
+        .finally(() => {
+          global.isRefreshingCatalog = false;
+        });
+    }
+  }
+
   return catalogCache;
 }
 
@@ -193,6 +230,15 @@ export async function refreshCatalog() {
     skill.descriptionEs = spanishDesc;
     skill.description = spanishDesc;
   }
+
+  // Save to persistent cache file
+  try {
+    writeFileSync(CACHE_FILE_PATH, JSON.stringify(catalogCache, null, 2), "utf-8");
+    console.log(`[Skills-sh] Saved ${catalogCache.length} skills to persistent cache file.`);
+  } catch (err) {
+    console.error("[Skills-sh] Failed to save persistent cache file:", err);
+  }
+
   return catalogCache;
 }
 

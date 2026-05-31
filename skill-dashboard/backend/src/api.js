@@ -230,10 +230,7 @@ router.post("/updates/apply", (_req, res) => {
 
 router.get("/skills-sh", async (_req, res) => {
   try {
-    let skills = getCatalog();
-    if (skills.length === 0) {
-      skills = await refreshCatalog();
-    }
+    const skills = getCatalog();
     res.json({ skills, total: skills.length });
   } catch (e) {
     res.status(502).json({ error: e.message });
