@@ -13,7 +13,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Read app version from package.json dynamically
-let appVersion = "1.0.15"; // fallback — update this with each release
+let appVersion = "1.0.16"; // fallback — update this with each release
 try {
   // Posibles ubicaciones: dev (3 niveles arriba) o producción (app.asar)
   const candidates = [
@@ -480,6 +480,7 @@ router.post("/remotion/render", async (req, res) => {
       }
 
       const pkgPath = join(tempDir, "package.json");
+      const tsconfigPath = join(tempDir, "tsconfig.json");
       let needsInstall = !existsSync(join(tempDir, "node_modules"));
       
       const pkgContent = {
@@ -492,14 +493,37 @@ router.post("/remotion/render", async (req, res) => {
           "react": "^18.0.0",
           "react-dom": "^18.0.0",
           "maplibre-gl": "^4.0.0",
-          "@turf/turf": "^7.0.0"
+          "@turf/turf": "^7.0.0",
+          "@types/react": "^18.0.0",
+          "@types/react-dom": "^18.0.0"
         }
       };
+
+      if (!existsSync(tsconfigPath)) {
+        const tsconfigContent = {
+          compilerOptions: {
+            target: "es2020",
+            module: "esnext",
+            moduleResolution: "node",
+            jsx: "react-jsx",
+            strict: false,
+            esModuleInterop: true,
+            skipLibCheck: true,
+            forceConsistentCasingInFileNames: true
+          },
+          include: ["**/*.ts", "**/*.tsx"]
+        };
+        writeFileSync(tsconfigPath, JSON.stringify(tsconfigContent, null, 2));
+      }
 
       if (existsSync(pkgPath)) {
         try {
           const currentPkg = JSON.parse(readFileSync(pkgPath, "utf-8"));
-          if (!currentPkg.dependencies || !currentPkg.dependencies["maplibre-gl"]) {
+          if (
+            !currentPkg.dependencies ||
+            !currentPkg.dependencies["maplibre-gl"] ||
+            !currentPkg.dependencies["@types/react"]
+          ) {
             needsInstall = true;
           }
         } catch (e) {
