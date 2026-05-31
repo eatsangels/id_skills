@@ -24,6 +24,8 @@ id_skills/
 │   │   │       ├── VideoStudio.tsx         # 🆕 Remotion Video Studio (code editor + renderer)
 │   │   │       ├── TemplateLibraryModal.tsx # 🆕 Searchable template gallery modal
 │   │   │       ├── templates.ts            # 🆕 Decoupled template registry (categorized)
+│   │   │       ├── AgentsShCard.tsx        # 🆕 Remote subagent card layout
+│   │   │       ├── AgentsShModal.tsx       # 🆕 Remote subagent installation modal
 │   │   │       └── [other modals/cards]    # AgentModal, SkillModal, HelpModal, etc.
 │   │   ├── vite.config.ts        # base: "./" required for Electron file:// loading
 │   │   └── package.json
@@ -32,8 +34,9 @@ id_skills/
 │   │   │   ├── api.js            # REST endpoints, agent execution, Remotion render pipeline
 │   │   │   ├── server.js         # Server bootstrap and SSE connection hub
 │   │   │   ├── config.js         # Path configuration for skills and agents
-│   │   │   ├── agent-scanner.js          # Local agent detector
-│   │   │   └── skills-sh-scanner.js      # Offline/online skill installer & resolver
+│   │   │   ├── agent-scanner.js          # Local agent detector (exports classifyAgent)
+│   │   │   ├── skills-sh-scanner.js      # Offline/online skill installer & resolver
+│   │   │   └── agents-sh-scanner.js      # 🆕 Remote subagent scanner and cache manager
 │   │   └── package.json
 │   ├── .agents/                  # Locally loaded agents list
 │   └── start.ps1                 # 🔄 PowerShell: auto-installs deps + starts dev servers
@@ -264,3 +267,6 @@ playground_cwd/     # Temporary agent execution dirs
 
 9.  **Flexible CLI Log Parsers**:
     *   When parsing standard output from CLIs (`npx skills`, etc.), avoid hardcoding exact spaces (like `\s{4}`) due to system-dependent indentation and CLI version updates. Always use flexible spacers like `\s+`.
+
+10. **ES Module Imports and Helper Functions**:
+    *   Utility functions (like `classifyAgent`) shared across backend modules must be explicitly exported (e.g. `export function...`). Leaving them as module-private will cause ESM resolver syntax errors and crash the Node.js API server on startup.
