@@ -107,7 +107,7 @@ async function runWithConcurrency(tasks, limit) {
 
 async function fetchSourceSkills(source) {
   try {
-    const out = await executeCommand(`npx skills add ${source} --list --yes 2>&1`, 60000);
+    const out = await executeCommand(`npx skills add ${source} --list --yes 2>&1`, 90000);
     const clean = stripAnsi(out);
     const lines = clean.split("\n");
     let inSkills = false;
@@ -117,14 +117,19 @@ async function fetchSourceSkills(source) {
 
     for (const line of lines) {
       const trimmed = line.trim();
+
+      // Detectar inicio de la sección de skills
       if (trimmed.includes("Available Skills")) {
         inSkills = true;
         continue;
       }
       if (!inSkills) continue;
-      if (trimmed.startsWith("Use --skill")) break;
-      if (!trimmed) continue;
-      const skillMatch = trimmed.match(/^\|\s{4}([\w-]+)$/);
+      if (trimmed.startsWith("Use --skill") || trimmed.startsWith("Install a skill")) break;
+      if (!trimmed || trimmed === "|") continue;
+
+      // Detectar nombre del skill: líneas tipo "| skill-name" o "|    skill-name"
+      // El CLI puede variar el número de espacios entre | y el nombre
+      const skillMatch = trimmed.match(/^\|\s+([\w][\w-]*)$/);
       if (skillMatch) {
         if (currentSkill) {
           sourceSkills.push({
