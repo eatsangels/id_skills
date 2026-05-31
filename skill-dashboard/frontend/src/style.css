@@ -74,7 +74,7 @@ img[alt="SkillNexus Logo"] {
 /* Base Cards (SkillCard, AgentCard, Remote Cards) */
 [role="button"].w-full,
 .w-full.text-left.group.relative {
-  background: #040000 !important;
+  background: #ffffff !important;
   color: #000000 !important;
   border: 2px solid #000000 !important;
   box-shadow: 4px 4px 0px 0px #000000 !important;
@@ -385,16 +385,17 @@ a.bg-brand-500\/10:hover {
 
 /* Video Studio styling overrides */
 .bg-surface-950\/80 textarea {
-  background: #ffffff !important;
-  color: #000000 !important;
+  background: #000000 !important;
+  color: #39FF14 !important; /* Matrix green text */
+  caret-color: #39FF14 !important; /* Matrix green cursor */
   font-family: var(--font-mono) !important;
 }
 
 /* Code Editor Wrapper */
 .bg-surface-950\/80 .bg-surface-975 {
-  background: #ffffff !important;
-  border: 2px solid #000000 !important;
-  box-shadow: 2px 2px 0px 0px #000000 !important;
+  background: #000000 !important;
+  border: 3px solid #000000 !important;
+  box-shadow: 3px 3px 0px 0px #000000 !important;
 }
 
 /* Iniciar Renderizado de Video button */
